@@ -12,3 +12,4 @@ No sera necesario involucrarse en el terreno de las transacciones/entidades banc
 
 ![[ER-1.png]]
 ![[Relacional.png]]
+![[ER-2.png]]
