@@ -148,10 +148,22 @@
   },
   "active": "82d6ec773fbec447",
   "lastOpenFiles": [
+    "Relacional.png",
+    "Documento-CineDB.md",
+    "RELACIONAL.png",
+    "DIAGRAMA-ER-FINAL.png",
+    "MODELO-RELACIONAL.png",
+    "cine-database-docker/crear_tablas.sql",
+    "cine-database-docker/csv",
+    "cine-database-docker/docker-compose.yaml",
+    "cine-database-docker",
+    "cine-database-docker/notebooks/Serializabilidad.ipynb",
+    "cine-database-docker/notebooks/Práctica.ipynb",
+    "cine-database-docker/notebooks",
+    "cine-database-docker/README.md",
+    "cine-database-docker/Dockerfile",
     "ER-PICADO.png",
     "ER-2.png",
-    "ER-1.png",
-    "Documento-CineDB.md",
-    "Relacional.png"
+    "ER-1.png"
   ]
 }

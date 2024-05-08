@@ -10,6 +10,5 @@ Dado que nuestro objetivo con esta base de datos es modelar un sistema funcional
 No sera necesario involucrarse en el terreno de las transacciones/entidades bancarias, simplemente mantener registro del costo unitario de las distintas funciones.
 
 
-![[ER-1.png]]
-![[Relacional.png]]
-![[ER-2.png]]
+![[DIAGRAMA-ER-FINAL.png]]
+![[MODELO-RELACIONAL.png]]

@@ -1,0 +1,16 @@
+version: '3.3'
+
+services:
+  postgres:
+    image: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_volume:/var/lib/postgresql/data
+      - ./csv/:/data/
+    environment:
+      - POSTGRES_PASSWORD=cine
+      - POSTGRES_USER=cine
+volumes:
+    postgres_volume:
+        external: false
