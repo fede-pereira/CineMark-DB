@@ -122,7 +122,7 @@ create table if not exists actor(
 );
 
 create table if not exists cliente(
-    cuit int PRIMARY KEY,
+    cuit int(10) PRIMARY KEY,
     nombre varchar (50),
     apellido varchar (50),
     edad int,
@@ -135,7 +135,29 @@ create table if not exists funcion(
     director varchar(200) FOREIGN KEY,
     id_sala int FOREIGN KEY,
     ts TIMESTAMP,
+    
     CONSTRAINT ident_funcion PRIMARY KEY(nombre_pelicula,director,id_sala,ts)
+    --Falta constrain para que no se pisen los ts
+);
+
+create table if not exists compra(
+    id_compra serial PRIMARY KEY,
+    nombre_pelicula varchar(200) FOREIGN KEY,
+    director varchar(200) FOREIGN KEY,
+    id_sala int FOREIGN KEY,
+    ts TIMESTAMP FOREIGN KEY,
+    cuit int(10) FOREIGN KEY,
+    cantidad int
+);
+
+create table if not exists actua(
+    nombre_pelicula varchar(200) FOREIGN KEY,
+    director varchar(200) FOREIGN KEY,
+    id_actor int FOREIGN KEY,
+    salario INTEGER,
+
+    CONSTRAINT ident_actua PRIMARY KEY(nombre_pelicula,director,id_actor)
+    
 );
 
 
