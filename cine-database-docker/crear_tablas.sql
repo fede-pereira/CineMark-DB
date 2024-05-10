@@ -39,7 +39,7 @@ create table if not exists actores(
 CREATE EXTENSION IF NOT EXISTS btree_gist;
 
 -- Primero, creamos la función inmutable que suma los segundos al timestamp
-CREATE FUNCTION sumar_segundos(timestamp, integer) RETURNS timestamp AS $$
+CREATE OR REPLACE FUNCTION  sumar_segundos(timestamp, integer) RETURNS timestamp AS $$
     SELECT $1 + ($2 || ' seconds')::interval;
 $$ LANGUAGE SQL IMMUTABLE;
 
@@ -52,11 +52,6 @@ CREATE TABLE IF NOT EXISTS funciones (
     ts TIMESTAMP,
     --duracion_pelicula_segundos INT ,
     CONSTRAINT ident_funcion PRIMARY KEY(nombre_pelicula, director, id_sala, id_cine, ts),
-    EXCLUDE USING GIST (
-        id_sala WITH =,
-        id_cine WITH =,
-        tsrange(ts, sumar_segundos(ts, 8460), '[)') WITH &&
-    ),
     FOREIGN KEY (nombre_pelicula, director) REFERENCES peliculas(nombre_pelicula, director),
     FOREIGN KEY (id_sala, id_cine) REFERENCES salas(id_sala, id_cine)
 );
@@ -83,3 +78,68 @@ create table if not exists actua(
     FOREIGN KEY (nombre_pelicula, director) REFERENCES peliculas(nombre_pelicula, director)
 );
 
+
+CREATE OR REPLACE FUNCTION validar_suma()
+RETURNS TRIGGER AS $$
+DECLARE
+    total INT;
+    maximo INT;
+BEGIN
+    -- Calcular la suma de las filas existentes más la nueva fila a ser insertada
+    SELECT SUM(cm.cantidad) + NEW.cantidad INTO total
+    FROM compras cm
+    WHERE NEW.ts = cm.ts and NEW.id_sala = cm.id_sala and NEW.id_cine = cm.id_cine;
+
+    -- Obtener el máximo de la columna asientos en función de la sala y el cine
+    SELECT MAX(sl.asientos) INTO maximo
+    FROM salas sl
+    WHERE NEW.id_sala = sl.id_sala and NEW.id_cine = sl.id_cine;
+
+    -- Verificar si la suma supera el límite
+    IF total > maximo THEN
+        -- Si la suma supera el límite, abortar la inserción de la fila
+        RAISE EXCEPTION 'La suma total excede el límite permitido';
+    END IF;
+    
+    -- Si la suma está dentro del límite, permitir la inserción de la fila
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE or replace TRIGGER trigg_compra_insert BEFORE INSERT ON compras FOR EACH ROW EXECUTE PROCEDURE validar_suma();
+
+CREATE OR REPLACE FUNCTION validar_espacio()
+RETURNS TRIGGER AS $$
+DECLARE
+    duracion_pelicula INT;
+    total INT;
+    limite INT := 10; -- Aquí debes poner el límite de superposición permitido en segundos
+BEGIN
+    -- Obtener la duración de la película correspondiente a la función que se está insertando
+    SELECT duracion_en_segundos INTO duracion_pelicula
+    FROM peliculas
+    WHERE nombre_pelicula = NEW.nombre_pelicula AND director = NEW.director;
+
+    -- Calcular las funciones con las que chocaría
+    SELECT COUNT(*) INTO total
+    FROM funciones fc
+    LEFT JOIN peliculas pl ON pl.nombre_pelicula = fc.nombre_pelicula AND pl.director = fc.director
+    WHERE NEW.id_sala = fc.id_sala AND NEW.id_cine = fc.id_cine AND
+        ((EXTRACT(EPOCH FROM NEW.ts) + duracion_pelicula > EXTRACT(EPOCH FROM fc.ts) AND 
+        EXTRACT(EPOCH FROM NEW.ts) < EXTRACT(EPOCH FROM fc.ts)) OR
+        (EXTRACT(EPOCH FROM fc.ts) + pl.duracion_en_segundos > EXTRACT(EPOCH FROM NEW.ts) AND
+        EXTRACT(EPOCH FROM fc.ts) + pl.duracion_en_segundos < EXTRACT(EPOCH FROM NEW.ts) + duracion_pelicula));
+
+    -- Verificar si la suma supera el límite
+    IF total > 0 THEN
+        RAISE EXCEPTION 'La función se superpone con demasiadas funciones existentes';
+    END IF;
+
+    -- Si la suma está dentro del límite, permitir la inserción de la fila
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+CREATE or replace TRIGGER trigg_funcion_insert BEFORE INSERT ON funciones FOR EACH ROW EXECUTE PROCEDURE validar_espacio();
