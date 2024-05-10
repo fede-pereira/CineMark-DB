@@ -48,3 +48,7 @@ FROM rango_etario;
 -- director mas famoso del ultimo mes
 -- peliculas que atraen a grupos, (ver cantidad promedio de entrasdas por compra por pelicula)
 -- dias de la semana con mayor cantidad de clientes
+-- 
+
+
+
