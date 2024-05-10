@@ -36,8 +36,6 @@ GROUP BY grupo_etario)
 SELECT grupo_etario, cantidad, CONCAT(ROUND(cantidad::numeric / SUM(cantidad) OVER () * 100, 2),'%') AS porcentaje
 FROM rango_etario;
 
---comentario, creo q no se permiten menos de 18 en los datos. Veria de relacionarlo con la cantidadd de entradas compradas por cliente mas que por el cliente en si
-
 -- 5) Orden de franjas horarias segun cuanta gente va al cine en ese horario.
 SELECT CONCAT(EXTRACT(HOUR FROM f.ts),':00') AS franja_horaria, SUM(c.cantidad) AS ventas
 FROM compras c
@@ -56,11 +54,48 @@ SELECT *
 FROM ranking_salarios
 WHERE ranking <= 10
 
+-- 7) Edad promedio de clientes por año de estreno de pelicula
+SELECT p.ano_estreno , ROUND(AVG(cl.edad)) AS edad_promedio
+FROM peliculas p
+LEFT JOIN compras cm ON cm.nombre_pelicula = p.nombre_pelicula AND cm.director = p.director
+LEFT JOIN clientes cl ON cm.cuit = cl.cuit
+GROUP BY p.ano_estreno;
 
---ideas
--- cliente con mas compras (mmuy simple)
--- director mas famoso del ultimo mes
--- peliculas que atraen a grupos, (ver cantidad promedio de entrasdas por compra por pelicula)
--- dias de la semana con mayor cantidad de clientes
--- 
+-- 8) Director mas popular del mes
+SELECT p.director
+FROM peliculas p 
+LEFT JOIN compras cm ON cm.nombre_pelicula = p.nombre_pelicula AND cm.director = p.director
+WHERE cm.ts >= CURRENT_DATE - INTERVAL '30 days' AND cm.id_compra IS NOT NULL
+GROUP BY p.director 
+ORDER BY SUM(cantidad) DESC
+LIMIT 1;
 
+-- 9) Versatilidad de distintos actores (Definida por cantidad de generos distintos en los que actuan)
+WITH actores_y_generos AS (SELECT a.nombre,a.apellido, COUNT(DISTINCT p.genero_pelicula) AS cantidad_genero
+FROM actores a
+JOIN actua act ON a.id_actor = act.id_actor
+JOIN peliculas p ON act.nombre_pelicula = p.nombre_pelicula AND act.director = p.director
+GROUP BY a.nombre, a.apellido 
+ORDER BY cantidad_genero DESC)
+SELECT nombre, apellido, cantidad_genero, 
+CASE 
+	WHEN cantidad_genero > AVG(cantidad_genero) OVER () THEN 'Versátil'
+	WHEN cantidad_genero < AVG(cantidad_genero) OVER () THEN 'Limitado'
+	ELSE 'Promedio'
+END AS versatilidad_actoral
+FROM actores_y_generos;
+
+-- 10) Diferencia de ventas con el mes anterior
+WITH ventas_mes_anio_cine AS (
+SELECT sl.id_cine,
+EXTRACT(MONTH FROM c.ts) AS mes ,
+EXTRACT(YEAR FROM c.ts) AS anio,
+sum(c.cantidad) AS cantidad_total
+FROM salas sl
+LEFT JOIN compras c on c.id_sala = sl.id_sala AND c.id_cine = sl.id_cine
+group BY sl.id_cine, anio, mes
+ORDER BY sl.id_cine, anio, mes DESC 
+)
+SELECT id_cine, mes, anio, cantidad_total as mes_actual, lag(cantidad_total, 1) OVER (PARTITION BY id_cine) AS mes_anterior,
+(cantidad_total - lag(cantidad_total, 1) OVER (PARTITION BY id_cine ORDER BY anio, mes desc)) AS dif_mes
+FROM ventas_mes_anio_cine;

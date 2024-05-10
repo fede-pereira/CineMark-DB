@@ -113,7 +113,6 @@ RETURNS TRIGGER AS $$
 DECLARE
     duracion_pelicula INT;
     total INT;
-    limite INT := 10; -- Aquí debes poner el límite de superposición permitido en segundos
 BEGIN
     -- Obtener la duración de la película correspondiente a la función que se está insertando
     SELECT duracion_en_segundos INTO duracion_pelicula
