@@ -39,3 +39,12 @@ FROM clientes
 GROUP BY grupo_etario)
 SELECT grupo_etario, cantidad, ROUND(count::numeric / SUM(cantidad) OVER () * 100, 2) AS porcentaje
 FROM rango_etario;
+
+--comentario, creo q no se permiten menos de 18 en los datos. Veria de relacionarlo con la cantidadd de entradas compradas por cliente mas que por el cliente en si
+
+
+--ideas
+-- cliente con mas compras (mmuy simple)
+-- director mas famoso del ultimo mes
+-- peliculas que atraen a grupos, (ver cantidad promedio de entrasdas por compra por pelicula)
+-- dias de la semana con mayor cantidad de clientes
