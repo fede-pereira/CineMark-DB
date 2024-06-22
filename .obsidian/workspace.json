@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Documento-CineDB.md",
+                "file": "TP viejo/Documento-CineDB.md",
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Documento-CineDB.md",
+                "file": "TP viejo/Documento-CineDB.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Documento-CineDB.md",
+                "file": "TP viejo/Documento-CineDB.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Documento-CineDB.md"
+                "file": "TP viejo/Documento-CineDB.md"
               }
             }
           }
@@ -138,31 +138,36 @@
   },
   "left-ribbon": {
     "hiddenItems": {
-      "switcher:Open quick switcher": false,
-      "graph:Open graph view": false,
-      "canvas:Create new canvas": false,
-      "daily-notes:Open today's daily note": false,
-      "templates:Insert template": false,
-      "command-palette:Open command palette": false
+      "switcher:Abrir selector rápido": false,
+      "graph:Abrir vista gráfica": false,
+      "canvas:Crear nuevo lienzo": false,
+      "daily-notes:Abrir la nota de hoy": false,
+      "templates:Insertar plantilla": false,
+      "command-palette:Abrir paleta de comandos": false
     }
   },
   "active": "82d6ec773fbec447",
   "lastOpenFiles": [
+    "TP viejo/DIAGRAMA-ER-FINAL.png",
     "Documento-CineDB.pdf",
-    "cine-database-docker/triggers.sql",
+    "Documento-CineDB.md",
+    "Tp Nuevo/dbt_tp/models/example/schema.yml",
+    "Tp Nuevo/dbt_tp/models/example/my_second_dbt_model.sql",
+    "Tp Nuevo/dbt_tp/models/example/my_first_dbt_model.sql",
+    "Tp Nuevo/dbt_tp/models/example",
+    "Tp Nuevo/td7/schema.py",
+    "Tp Nuevo/td7/database.py",
+    "Tp Nuevo/td7/data_generator.py",
+    "Tp Nuevo/td7/custom_types.py",
+    "Tp Nuevo/td7/config.py",
+    "Tp Nuevo/dbt_tp/README.md",
+    "Tp Nuevo/README.md",
+    "TP viejo/README.md",
+    "TP viejo/MODELO-RELACIONAL.png",
+    "TP viejo/Documento-CineDB.md",
     "MODELO-RELACIONAL.png",
     "DIAGRAMA-ER-FINAL.png",
-    "Documento-CineDB.md",
     "README.md",
-    "triggers.sql",
-    "cine-database-docker/queries.sql",
-    "cine-database-docker/data_generator.py",
-    "cine-database-docker/csv/salas.csv",
-    "cine-database-docker/csv/peliculas.csv",
-    "cine-database-docker/csv/funciones.csv",
-    "cine-database-docker/csv/compras.csv",
-    "cine-database-docker/csv/clientes.csv",
-    "cine-database-docker/csv/actua.csv",
     "Relacional.png",
     "RELACIONAL.png",
     "cine-database-docker/README.md",

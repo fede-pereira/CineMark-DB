@@ -4,7 +4,7 @@ from faker import Faker
 from faker.providers import address, date_time, internet, passport, phone_number
 import uuid
 import psycopg2
-from database import Database
+from .database import Database
 
 from td7.custom_types import Records, Record
 
