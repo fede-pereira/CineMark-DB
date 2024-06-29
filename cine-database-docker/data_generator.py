@@ -73,14 +73,15 @@ def generate_funciones_data(num_rows, salas_ids, peliculas_data):
     for _ in range(num_rows):
         nombre_pelicula, director, *_ = fake.random_element(peliculas_data)
         id_sala, id_cine, *_ = random.choice(salas_ids)
-        ts = fake.date_time_between(start_date="-1y", end_date="now")
-        yield (nombre_pelicula, director, id_sala, id_cine, ts)
+        ts = fake.date_time_between(start_date="-2y", end_date="now")
+        precio = random.choice([4000,6000,10000])
+        yield (nombre_pelicula, director, id_sala, id_cine, ts, precio)
 
 
 # Function to generate fake data for compras table
 def generate_compras_data(num_rows, funciones_data, clientes_data):
     for _ in range(num_rows):
-        nombre_pelicula, director, id_sala, id_cine, ts = fake.random_element(
+        nombre_pelicula, director, id_sala, id_cine, ts, precio = fake.random_element(
             funciones_data
         )
         # id_sala, id_cine, *_ = random.choice(salas_data)
@@ -136,7 +137,7 @@ salas_ids = cur.fetchall()
 # # Insert data into funciones table
 funciones_data = list(generate_funciones_data(num_rows, salas_ids, peliculas_data))
 cur.executemany(
-    "INSERT INTO funciones (nombre_pelicula, director, id_sala, id_cine, ts) VALUES (%s, %s, %s, %s, %s)",
+    "INSERT INTO funciones (nombre_pelicula, director, id_sala, id_cine, ts, precio) VALUES (%s, %s, %s, %s, %s, %s)",
     funciones_data,
 )
 
