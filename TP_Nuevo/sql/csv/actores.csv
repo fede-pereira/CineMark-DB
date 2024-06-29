@@ -1,4 +1,4 @@
-"id_actor";"nombre";"apellido";"edad";"genero"
+id_actor;nombre;apellido;edad;genero
 1001;Megan;Nelson;63;f
 1002;Valerie;Sullivan;33;m
 1003;Gerald;Brown;74;o

@@ -22,14 +22,6 @@ def generate_data_daily(base_time: str, n: int):
     generator = DataGenerator()
     schema = Schema()
 
-    people_sample = schema.get_people(100)
-    sessions = generator.generate_sessions(
-        people_sample,
-        datetime.datetime.fromisoformat(base_time),
-        datetime.timedelta(days=1),
-        n,
-    )
-    schema.insert(sessions, "sessions")
 
     # Inicialmente arrancamos con una DB no vacia, luego tenemos que obtener los CUITs pre-existentes.
     sample_clientes_initial = schema.get_clientes()
@@ -99,7 +91,7 @@ def generate_data_daily(base_time: str, n: int):
 
 with DAG(
     "fill_data_daily",
-    start_date=pendulum.datetime(2024, 6, 1, tz="UTC"),
+    start_date=pendulum.datetime(2024, 6, 29, tz="UTC"),
     schedule_interval="@daily",
     catchup=True,
 ) as dag:

@@ -1,3 +1,4 @@
+-- SQLBook: Code
 -- 1) Ganancias totales por genero de peliculas
 SELECT p.genero_pelicula, SUM(c.cantidad) * 4000 AS ingresos_totales
 FROM compras c

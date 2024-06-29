@@ -136,12 +136,17 @@ class DataGenerator:
 
 
         for _ in range(n): 
-            nombre_pelicula, director, *_ = self.fake.random_element(peliculas_data)
-            id_sala, id_cine, *_ = random.choice(salas_ids)
+            data= self.fake.random_element(peliculas_data)
+            nombre_pelicula = data['nombre_pelicula']
+            director = data['director']
+            precio = random.choice([4000,6000,10000])
+            data_sala= random.choice(salas_ids)
+            id_sala = data_sala['id_sala']
+            id_cine = data_sala['id_cine']
             ts = self.fake.date_time_between(start_date="-2y", end_date="now")
             while not self.check_rango(ts, dic_salas, id_sala, id_cine, dic_duraciones, nombre_pelicula, director):
                 ts = self.fake.date_time_between(start_date="-2y", end_date="now")
-                precio = self.fake.random_int(min=4000, max=8000)
+                precio = random.choice([4000,6000,10000])
             funciones.append({"nombre_pelicula": nombre_pelicula, 
                                 "director": director, 
                                 "id_sala": id_sala, 
@@ -156,7 +161,10 @@ class DataGenerator:
         
         actores = [num['id_actor'] for num in actores]
         for _ in range(n): 
-            nombre_pelicula, director, *_ = self.fake.random_element(peliculas_data)
+            data = self.fake.random_element(peliculas_data)
+            nombre_pelicula = data['nombre_pelicula']
+            director = data['director']
+
             id_actor, *_ = random.choice(actores)
             salario = round(self.fake.pyfloat(left_digits=5, right_digits=2, positive=True), 2)
             actua.append({"nombre_pelicula": nombre_pelicula, 
@@ -197,21 +205,42 @@ class DataGenerator:
             if ts not in disponibles[(id_sala, id_cine)]:
                 disponibles[(id_sala, id_cine)][ts] = capacidades[(id_sala, id_cine)]
 
-            
+        print(disponibles)
         for _ in range(n):
-            nombre_pelicula, director, id_sala, id_cine, ts = self.fake.random_element(funciones_data)
-            cuit, *_ = random.choice(clientes_data)
-            cantidad = self.fake.random_int(min=1, max=10)
-            while not (ts in disponibles[(id_sala, id_cine)] and disponibles[(id_sala, id_cine)][ts] >= cantidad):
-                nombre_pelicula, director, id_sala, id_cine, ts = self.fake.random_element(funciones_data)
-                cuit, *_ = random.choice(clientes_data)
+            try:
+                datos = self.fake.random_element(funciones_data)
+                nombre_pelicula = datos['nombre_pelicula']
+                director = datos['director']
+                id_sala = datos['id_sala']
+                id_cine = datos['id_cine']
+                ts = datos['ts']
+
+
+                print(nombre_pelicula, director, id_sala, id_cine, ts)
+                data_cliente= random.choice(clientes_data)
+                cuit = data_cliente['cuit']
                 cantidad = self.fake.random_int(min=1, max=10)
-            disponibles[(id_sala, id_cine)][ts] -= cantidad
-            compras.append({"nombre_pelicula": nombre_pelicula, 
-                            "director": director, 
-                            "id_sala": id_sala, 
-                            "id_cine": id_cine, 
-                            "ts": ts, 
-                            "cuit": cuit, 
-                            "cantidad": cantidad})
+                if (id_sala, id_cine) not in disponibles:
+                    disponibles[(id_sala, id_cine)] = {}
+                while  disponibles[(id_sala, id_cine)][ts] <= cantidad:
+                    # nombre_pelicula, director, id_sala, id_cine, ts, precio = self.fake.random_element(funciones_data)
+                    datos = self.fake.random_element(funciones_data)
+                    nombre_pelicula = datos['nombre_pelicula']
+                    director = datos['director']
+                    id_sala = datos['id_sala']
+                    id_cine = datos['id_cine']
+                    ts = datos['ts']
+                    data_cliente= random.choice(clientes_data)
+                    cuit = data_cliente['cuit']
+                    cantidad = self.fake.random_int(min=1, max=10)
+                disponibles[(id_sala, id_cine)][ts] -= cantidad
+                compras.append({"nombre_pelicula": nombre_pelicula, 
+                                "director": director, 
+                                "id_sala": id_sala, 
+                                "id_cine": id_cine, 
+                                "ts": ts, 
+                                "cuit": cuit, 
+                                "cantidad": cantidad})
+            except Exception as e:
+                raise ValueError(e, nombre_pelicula, director, id_sala, id_cine, ts, cuit, cantidad,datos)
         return compras
