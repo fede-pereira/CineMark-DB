@@ -6,9 +6,7 @@ import uuid
 import psycopg2
 from .database import Database
 
-from td7.custom_types import Records, Record
-
-PHONE_PROBABILITY = 0.7
+from td7.custom_types import Records
 
 class DataGenerator:
     def __init__(self):
@@ -21,23 +19,7 @@ class DataGenerator:
         self.fake.add_provider(phone_number)
 
     def generate_people(self, n: int) -> Records:
-        """Generates n people.
 
-        Parameters
-        ----------
-        n : int
-            Number of people to generate.
-
-        Returns
-        -------
-        List[Dict[str, Any]]
-            List of dicts that include first_name, last_name, phone_number,
-            address, country, date_of_birth, passport_number and email.
-
-        Notes
-        -----
-        People are guaranteed to be unique only within a function call.
-        """
         people = []
         for _ in range(n):
             people.append(
@@ -54,7 +36,7 @@ class DataGenerator:
             )
         return people
     
-    def generate_peliculas_data(self, n: int) -> Records:
+    def generate_peliculas(self, n: int) -> Records:
         peliculas = []
         for _ in range(n):
             nombre_pelicula = self.fake.catch_phrase()
@@ -65,7 +47,7 @@ class DataGenerator:
             tiempo_de_realizacion = self.fake.random_int(min=1, max=24)
             ano_estreno = self.fake.random_int(min=1970, max=2022)
             genero_pelicula = self.fake.random_element(
-                elements=("Action", "Comedy", "Drama", "Thriller")
+                elements=("Action", "Comedy", "Drama", "Thriller", "Science Fiction", "Fantasy", "Horror", "Western", "Musical")
             )
             peliculas.append({
                 "nombre_pelicula":nombre_pelicula,
@@ -80,7 +62,7 @@ class DataGenerator:
         return peliculas
   
    
-    def generate_clientes_data(self, n: int) -> Records:
+    def generate_clientes(self, n: int) -> Records:
         clientes = []
         for _ in range(n):
             cuit = self.fake.random_number(digits=11, fix_len=True)  # Ensure 11-digit number
@@ -100,23 +82,7 @@ class DataGenerator:
     
     
     def generate_salas(self, n: int) -> Records:
-        """Generates n people.
 
-        Parameters
-        ----------
-        n : int
-            Numero de salas a generar.
-
-        Returns
-        -------
-        List[Dict[str, Any]]
-            List of dicts that include first_name, last_name, phone_number,
-            address, country, date_of_birth, passport_number and email.
-
-        Notes
-        -----
-        People are guaranteed to be unique only within a function call.
-        """
         salas = []
         for _ in range(n):
             salas.append(
@@ -128,13 +94,13 @@ class DataGenerator:
                 )
             return salas
 
-    def generate_funciones(self, n: int) -> Records:
+    def generate_funciones(self, n: int, peliculas_data: Records, salas_ids:Records ) -> Records:
         funciones = []
 
-        #pido las peliculas y las salas de la base
-        db = Database()
-        peliculas_data = db.run_select("SELECT * FROM peliculas")
-        salas_ids = db.run_select("SELECT id_sala, id_cine FROM salas")
+        # #pido las peliculas y las salas de la base
+        # db = Database()
+        # peliculas_data = db.run_select("SELECT * FROM peliculas")
+        # salas_ids = db.run_select("SELECT id_sala, id_cine FROM salas")
         
         for _ in range(n): 
             nombre_pelicula, director, *_ = self.fake.random_element(peliculas_data)
@@ -147,13 +113,11 @@ class DataGenerator:
                                 "ts": ts})    
         return funciones    
 
-    def generate_actua(self, n: int) -> Records:
+    def generate_actua(self, peliculas_data:Records, actores:Records, n: int) -> Records:
+        
         actua = []
-
         #pido las peliculas y las salas de la base
-        db = Database()
-        peliculas_data = db.run_select("SELECT * FROM peliculas")
-        actores =  db.run_select("SELECT id_actor FROM actores")
+        
         actores = [num['id_actor'] for num in actores]
         for _ in range(n): 
             nombre_pelicula, director, *_ = self.fake.random_element(peliculas_data)
@@ -165,7 +129,7 @@ class DataGenerator:
                                 "salario": salario})    
         return actua    
 
-    def generate_actores_data(self, n: int) -> Records:
+    def generate_actores(self, n: int) -> Records:
         actores = []
         for _ in range(n):
             nombre = self.fake.first_name()
@@ -179,5 +143,17 @@ class DataGenerator:
                             "genero": genero})
         return actores
     
-
-    
+    def generate_compras(self, n: int, funciones_data: Records, clientes_data: Records) -> Records:
+        compras = []
+        for _ in range(n):
+            nombre_pelicula, director, id_sala, id_cine, ts = self.fake.random_element(funciones_data)
+            cuit, *_ = random.choice(clientes_data)
+            cantidad = self.fake.random_int(min=1, max=10)
+            compras.append({"nombre_pelicula": nombre_pelicula, 
+                            "director": director, 
+                            "id_sala": id_sala, 
+                            "id_cine": id_cine, 
+                            "ts": ts, 
+                            "cuit": cuit, 
+                            "cantidad": cantidad})
+        return compras

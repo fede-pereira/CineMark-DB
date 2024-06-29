@@ -21,7 +21,7 @@ create table if not exists peliculas(
 
 CREATE TABLE IF NOT EXISTS clientes (
     cuit BIGINT PRIMARY KEY CHECK (cuit <= 99999999999 AND cuit > 10000000000),
-    nombre VARCHAR(50),				   
+    nombre VARCHAR(50),
     apellido VARCHAR(50),
     edad INT,
     nacionalidad VARCHAR(200),

@@ -8,7 +8,7 @@ from td7.schema import Schema
 EVENTS_PER_DAY = 10_000
 
 
-def generate_data(base_time: str, n: int):
+def generate_data_monthly(base_time: str, n: int):
     """Generates synth data and saves to DB.
 
     Parameters
@@ -21,8 +21,34 @@ def generate_data(base_time: str, n: int):
     """
     generator = DataGenerator()
     schema = Schema()
-    people = generator.generate_people(100)
-    schema.insert(people, "people")
+
+    # people_sample = schema.get_people(100)
+    # sessions = generator.generate_sessions(
+    #     people_sample,
+    #     datetime.datetime.fromisoformat(base_time),
+    #     datetime.timedelta(days=1),
+    #     n,
+    # )
+    # schema.insert(sessions, "sessions")
+    
+    # Generar datos de SALAS
+    salas = generator.generate_salas(10)
+    schema.insert(salas, "salas")
+
+
+def generate_data_daily(base_time: str, n: int):
+    """Generates synth data and saves to DB.
+
+    Parameters
+    ----------
+    base_time: strpoetry export --without-hashes --format=requirements.txt > requirements.txt
+
+        Base datetime to start events from.
+    n : int
+        Number of events to generate.
+    """
+    generator = DataGenerator()
+    schema = Schema()
 
     people_sample = schema.get_people(100)
     sessions = generator.generate_sessions(
@@ -33,15 +59,87 @@ def generate_data(base_time: str, n: int):
     )
     schema.insert(sessions, "sessions")
 
+    # Generar datos de CLIENTES
+    clientes = generator.generate_clientes(1000)
+    schema.insert(clientes, "clientes")
+
+    #Sampleo de clientes
+    sample_clientes = schema.get_clientes(1000)
+    
+    # Generar datos de COMPRAS
+    compras = generator.generate_compras(1000, sample_clientes)
+    schema.insert(compras, "compras")
+
+
+def generate_weekly(base_time: str, n: int):
+    """Generates synth data and saves to DB.
+
+    Parameters
+    ----------
+    base_time: strpoetry export --without-hashes --format=requirements.txt > requirements.txt
+
+        Base datetime to start events from.
+    n : int
+        Number of events to generate.
+    """
+    generator = DataGenerator()
+    schema = Schema()
+    
+    # Generar datos de PELICULAS
+    peliculas = generator.generate_peliculas(5)
+    schema.insert(peliculas, "peliculas")
+
+    # Generar datos de ACTORES
+    actores = generator.generate_actores(2)
+    schema.insert(actores, "actores")
+
+    # Sample de peliculas y salas
+    peliculas_sample = schema.get_peliculas(30)
+    salas_sample = schema.get_salas()
+
+    # Generar datos de FUNCIONES
+    funciones = generator.generate_funciones(1000, peliculas_sample, salas_sample)
+    schema.insert(funciones, "funciones")
+
+    # Generar datos de ACTUA
+    actores_sample = schema.get_actores(30)
+    actua = generator.generate_actua(peliculas_sample, actores_sample, 100)
+    schema.insert(actua, "actua")
+
 
 with DAG(
-    "fill_data",
+    "fill_data_montly",
+    start_date=pendulum.datetime(2024, 6, 1, tz="UTC"),
+    schedule_interval="@monthly",
+    catchup=True,
+) as dag:
+    op = PythonOperator(
+        task_id="task",
+        python_callable=generate_data_monthly,
+        op_kwargs=dict(n=EVENTS_PER_DAY, base_time="{{ ds }}"),
+    )
+
+with DAG(
+    "fill_data_weekly",
+    start_date=pendulum.datetime(2024, 6, 1, tz="UTC"),
+    schedule_interval="@weekly",
+    catchup=True,
+) as dag:
+    op = PythonOperator(
+        task_id="task",
+        python_callable=generate_data_monthly,
+        op_kwargs=dict(n=EVENTS_PER_DAY, base_time="{{ ds }}"),
+    )
+
+
+with DAG(
+    "fill_data_daily",
     start_date=pendulum.datetime(2024, 6, 1, tz="UTC"),
     schedule_interval="@daily",
     catchup=True,
 ) as dag:
     op = PythonOperator(
         task_id="task",
-        python_callable=generate_data,
+        python_callable=generate_data_daily,
         op_kwargs=dict(n=EVENTS_PER_DAY, base_time="{{ ds }}"),
     )
