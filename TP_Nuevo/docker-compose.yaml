@@ -25,6 +25,7 @@ services:
       - 5432:5432
     volumes:
       - ./sql/:/docker-entrypoint-initdb.d/
+      - ./sql/csv/:/data/
     environment:
       - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
       - POSTGRES_USER=$POSTGRES_USER
@@ -35,6 +36,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 60s
 
   dbt:
     build:
