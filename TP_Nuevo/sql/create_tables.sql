@@ -51,10 +51,12 @@ CREATE TABLE IF NOT EXISTS funciones (
     id_sala INT ,
     id_cine INT ,
     ts TIMESTAMP,
+    precio INT,
     --duracion_pelicula_segundos INT ,
     CONSTRAINT ident_funcion PRIMARY KEY(nombre_pelicula, director, id_sala, id_cine, ts),
     FOREIGN KEY (nombre_pelicula, director) REFERENCES peliculas(nombre_pelicula, director),
     FOREIGN KEY (id_sala, id_cine) REFERENCES salas(id_sala, id_cine)
+
 );
 
 create table if not exists compras(

@@ -19,7 +19,6 @@ class DataGenerator:
         self.fake.add_provider(phone_number)
 
     def generate_people(self, n: int) -> Records:
-
         people = []
         for _ in range(n):
             people.append(
@@ -62,10 +61,16 @@ class DataGenerator:
         return peliculas
   
    
-    def generate_clientes(self, n: int) -> Records:
+    def generate_clientes(self, n: int, data_clientes: Records) -> Records:
         clientes = []
+        cuits = set([int(num['cuit']) for num in data_clientes])
+        
         for _ in range(n):
-            cuit = self.fake.random_number(digits=11, fix_len=True)  # Ensure 11-digit number
+            # cuit no repetido
+            cuit = self.fake.random_number(digits=11, fix_len=True)
+            while cuit in cuits:
+                cuit = self.fake.random_number(digits=11, fix_len=True)
+            cuits.add(cuit)
             nombre = self.fake.first_name()
             apellido = self.fake.last_name()
             edad = self.fake.random_int(min=18, max=80)
@@ -84,6 +89,7 @@ class DataGenerator:
     def generate_salas(self, n: int) -> Records:
 
         salas = []
+
         for _ in range(n):
             salas.append(
                 {
@@ -94,27 +100,57 @@ class DataGenerator:
                 )
             return salas
 
-    def generate_funciones(self, n: int, peliculas_data: Records, salas_ids:Records ) -> Records:
+    def check_rango(self, ts: datetime.datetime, dic_salas: dict, id_sala: int, id_cine: int, dic_duraciones: dict, nombre_pelicula: str, nombre_director:str) -> bool:
+        """"Chequea si una funcion puede ser creada"""
+        if (id_sala, id_cine) not in dic_salas:
+            return False
+        ts_sala = dic_salas[(id_sala, id_cine)]
+        duracion = dic_duraciones[(nombre_pelicula, nombre_director)]
+        for ts_sala in ts_sala:
+            if ts_sala <= ts and ts <= ts_sala + datetime.timedelta(seconds=duracion):
+                return False
+        return True
+
+    def generate_funciones(self, n: int, peliculas_data: Records, salas_ids:Records, funciones_data:Records) -> Records:
         funciones = []
 
-        # #pido las peliculas y las salas de la base
-        # db = Database()
-        # peliculas_data = db.run_select("SELECT * FROM peliculas")
-        # salas_ids = db.run_select("SELECT id_sala, id_cine FROM salas")
-        
+        # Creo diccionario con las salas y sus funciones
+        salas = [num['id_sala'] for num in funciones_data]
+        cines = [num['id_cine'] for num in funciones_data]
+        ts = [num['ts'] for num in funciones_data]
+        dic_salas = {}
+        for i in range(len(salas)):
+            sala =(salas[i], cines[i])
+            if sala not in dic_salas:
+                dic_salas[sala] = []
+            dic_salas[sala].append(ts[i])
+            
+        # Creo diccionario con las duraciones de las peliculas
+        nombres = [num['nombre_pelicula'] for num in peliculas_data]
+        directores = [num['director'] for num in peliculas_data]
+        duraciones = [int(num['duracion_en_segundos']) for num in peliculas_data]
+        dic_duraciones = {}
+        for i in range(len(nombres)):
+            peli = (nombres[i], directores[i])
+            dic_duraciones[peli] = duraciones[i]
+
+
         for _ in range(n): 
             nombre_pelicula, director, *_ = self.fake.random_element(peliculas_data)
             id_sala, id_cine, *_ = random.choice(salas_ids)
             ts = self.fake.date_time_between(start_date="-2y", end_date="now")
+            while not self.check_rango(ts, dic_salas, id_sala, id_cine, dic_duraciones, nombre_pelicula, director):
+                ts = self.fake.date_time_between(start_date="-2y", end_date="now")
+                precio = self.fake.random_int(min=4000, max=8000)
             funciones.append({"nombre_pelicula": nombre_pelicula, 
                                 "director": director, 
                                 "id_sala": id_sala, 
                                 "id_cine": id_cine, 
-                                "ts": ts})    
+                                "ts": ts,
+                                "precio": precio})    
         return funciones    
 
     def generate_actua(self, peliculas_data:Records, actores:Records, n: int) -> Records:
-        
         actua = []
         #pido las peliculas y las salas de la base
         
@@ -143,12 +179,34 @@ class DataGenerator:
                             "genero": genero})
         return actores
     
-    def generate_compras(self, n: int, funciones_data: Records, clientes_data: Records) -> Records:
+        
+    def generate_compras(self, n: int, funciones_data: Records, clientes_data: Records, salas_data: Records) -> Records:
         compras = []
+        capacidades = {}
+        disponibles = {}
+        for row in salas_data:
+            id_sala = row['id_sala']
+            id_cine = row['id_cine']
+            asientos = row['asientos']
+            capacidades[(id_sala, id_cine)] = asientos
+            disponibles[(id_sala, id_cine)] = {}
+        for row in funciones_data:
+            id_sala = row['id_sala']
+            id_cine = row['id_cine']
+            ts = row['ts']
+            if ts not in disponibles[(id_sala, id_cine)]:
+                disponibles[(id_sala, id_cine)][ts] = capacidades[(id_sala, id_cine)]
+
+            
         for _ in range(n):
             nombre_pelicula, director, id_sala, id_cine, ts = self.fake.random_element(funciones_data)
             cuit, *_ = random.choice(clientes_data)
             cantidad = self.fake.random_int(min=1, max=10)
+            while not (ts in disponibles[(id_sala, id_cine)] and disponibles[(id_sala, id_cine)][ts] >= cantidad):
+                nombre_pelicula, director, id_sala, id_cine, ts = self.fake.random_element(funciones_data)
+                cuit, *_ = random.choice(clientes_data)
+                cantidad = self.fake.random_int(min=1, max=10)
+            disponibles[(id_sala, id_cine)][ts] -= cantidad
             compras.append({"nombre_pelicula": nombre_pelicula, 
                             "director": director, 
                             "id_sala": id_sala, 
