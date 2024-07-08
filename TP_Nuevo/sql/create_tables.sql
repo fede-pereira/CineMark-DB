@@ -59,8 +59,12 @@ CREATE TABLE IF NOT EXISTS funciones (
 
 );
 
+CREATE SEQUENCE compras_id_compra_seq
+    START WITH 2001
+    INCREMENT BY 1;
+
 create table if not exists compras(
-    id_compra serial PRIMARY KEY,
+    id_compra int DEFAULT nextval('compras_id_compra_seq') PRIMARY KEY,
     nombre_pelicula varchar(200) ,
     director varchar(200) ,
     id_sala int ,

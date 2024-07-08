@@ -48,6 +48,10 @@ class Schema:
         if sample_n is not None:
             query += f" LIMIT {sample_n}"
         return self.db.run_select(query)
+    
+    def get_last_month_data(self)-> Records:
+        query = "SELECT DATE(f.ts) AS dia, SUM(f.precio * c.cantidad) AS profit FROM compras c JOIN funciones f ON (c.id_sala = f.id_sala AND c.id_cine = f.id_cine AND c.ts = f.ts AND c.nombre_pelicula = f.nombre_pelicula AND c.director = f.director) WHERE f.ts >= NOW() - INTERVAL '3 month' GROUP BY DATE(f.ts);"
+        return self.db.run_select(query)
         
     
     def insert(self, records: Records, table: str):

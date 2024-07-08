@@ -219,10 +219,10 @@ class DataGenerator:
                 print(nombre_pelicula, director, id_sala, id_cine, ts)
                 data_cliente= random.choice(clientes_data)
                 cuit = data_cliente['cuit']
-                cantidad = self.fake.random_int(min=1, max=10)
+                cantidad = self.fake.random_int(min=1, max=4)
                 if (id_sala, id_cine) not in disponibles:
                     disponibles[(id_sala, id_cine)] = {}
-                while  disponibles[(id_sala, id_cine)][ts] <= cantidad:
+                while disponibles[(id_sala, id_cine)][ts] <= cantidad:
                     # nombre_pelicula, director, id_sala, id_cine, ts, precio = self.fake.random_element(funciones_data)
                     datos = self.fake.random_element(funciones_data)
                     nombre_pelicula = datos['nombre_pelicula']
@@ -232,8 +232,10 @@ class DataGenerator:
                     ts = datos['ts']
                     data_cliente= random.choice(clientes_data)
                     cuit = data_cliente['cuit']
-                    cantidad = self.fake.random_int(min=1, max=10)
+                    cantidad = self.fake.random_int(min=1, max=4)
                 disponibles[(id_sala, id_cine)][ts] -= cantidad
+                if disponibles[(id_sala, id_cine)][ts] < 0:
+                    raise ValueError("No hay suficientes asientos", nombre_pelicula, director, id_sala, id_cine, ts, cuit, cantidad)
                 compras.append({"nombre_pelicula": nombre_pelicula, 
                                 "director": director, 
                                 "id_sala": id_sala, 
