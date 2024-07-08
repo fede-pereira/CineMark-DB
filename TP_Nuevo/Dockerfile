@@ -4,6 +4,7 @@ ENV AIRFLOW_HOME=/opt/airflow
 ENV AIRFLOW_VERSION=2.9.1
 WORKDIR /opt/airflow
 RUN pip install poetry==1.4.2
+RUN pip install prophet==1.1.5
 COPY pyproject.toml poetry.lock /opt/airflow/
 RUN poetry config virtualenvs.create false && poetry install --no-root
 RUN airflow db migrate && airflow users create --username airflow --firstname Peter --lastname Parker --role Admin --password airflow --email spiderman@superhero.org
