@@ -47,10 +47,10 @@ def generate_data_daily(base_time: str, n: int):
 
 def sunday_check(base_time: str) -> str:
     # Log in airflow base time
-    if pendulum.parse(base_time).day_of_week == 0:
+    if pendulum.parse(base_time).day_of_week == 6:
         return "forecast"
     else:
-        return "end"
+        return "end_sunday"
 
 
 def forecast_sales():
@@ -65,7 +65,7 @@ def forecast_sales():
     weekly_profit = sum([float(daily) for daily in forecast[["yhat"]].tail(7)["yhat"]])
     logging.info(f"Profit for the next week: {weekly_profit}")
     if weekly_profit > 5500000:
-        return "end"
+        return "end_forecast"
     else:
         return "warn"
 
@@ -99,7 +99,9 @@ with DAG(
         python_callable=lambda: logging.info("Warning: Profit is below threshold"),
     )
 
-    end = DummyOperator(task_id="end")
+    end_sunday = DummyOperator(task_id="end_sunday")
 
-gen_data >> branch_sunday >> [forecast, end]
-forecast >> [end, warn]
+    end_forecast = DummyOperator(task_id="end_forecast")
+
+gen_data >> branch_sunday >> [forecast, end_sunday]
+forecast >> [end_forecast, warn]
