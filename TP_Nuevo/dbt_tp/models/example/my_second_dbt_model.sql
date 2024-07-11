@@ -1,3 +1,27 @@
-select *
-from {{ ref('my_first_dbt_model') }}
-where id = 1
+-- SQLBook: Code
+{{ config(materialized='table') }}
+
+
+with compras_genero as (
+    select 
+        p.genero_pelicula as genero_pelicula,
+        sum(c.cantidad * f.precio) as total_revenue
+    from 
+        compras c
+    join 
+        funciones f on f.nombre_pelicula = c.nombre_pelicula and f.director = c.director and f.id_sala = c.id_sala and f.id_cine = c.id_cine and c.ts=f.ts
+    join 
+        peliculas p on c.nombre_pelicula = p.nombre_pelicula
+    group by 
+        p.genero_pelicula, f.precio
+)
+
+select 
+    genero_pelicula,
+    sum(total_revenue) as total_revenue
+from 
+    compras_genero
+group by 
+    genero_pelicula
+order by 
+    total_revenue desc

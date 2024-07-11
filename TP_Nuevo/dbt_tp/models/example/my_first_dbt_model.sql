@@ -1,14 +1,28 @@
+-- SQLBook: Code
 {{ config(materialized='table') }}
 
-with source_data as (
-
-    select 1 as id
-    union all
-    select null as id
-
+with compras_cliente as (
+    select 
+        cl.cuit,
+        count(*) as cantidad_compras_cliente,
+        sum(c.cantidad * f.precio) as plata_cliente
+    from 
+        
+        compras c
+    join
+        clientes cl on c.cuit = cl.cuit
+    join 
+        funciones f on f.nombre_pelicula = c.nombre_pelicula and f.director = c.director and f.id_sala = c.id_sala and f.id_cine = c.id_cine and c.ts=f.ts
+    group by 
+        cl.cuit
 )
+select 
+    cuit,
+    case 
+        when cantidad_compras_cliente > 2 then 'Cinemark Fan'
+        when cantidad_compras_cliente = 2 then 'Aficionado al cine'
+        else 'Tuvo una cita'
+    end as categoria,
+    plata_cliente
+from compras_cliente
 
-select *
-from source_data
-
-where id is not null
