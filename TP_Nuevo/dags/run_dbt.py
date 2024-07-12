@@ -47,7 +47,7 @@ def copy_docs(project_dir: str):
 with DAG(
     "run_dbt",
     default_args=DEFAULT_ARGS,
-    schedule="@daily",  # TODO: complete aquí con lo que considere
+    schedule="@weekly",  # TODO: complete aquí con lo que considere
     catchup=False,
     max_active_runs=1,
     tags=["dbt"],

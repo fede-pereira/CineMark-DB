@@ -9,7 +9,7 @@ from td7.data_generator import DataGenerator
 from td7.schema import Schema
 from prophet import Prophet
 
-EVENTS_PER_DAY = 10_000
+EVENTS_PER_DAY = 1000
 
 
 def generate_data_daily(base_time: str, n: int):
@@ -29,18 +29,18 @@ def generate_data_daily(base_time: str, n: int):
     # Inicialmente arrancamos con una DB no vacia, luego tenemos que obtener los CUITs pre-existentes.
     sample_clientes_initial = schema.get_clientes()
     # Generar datos de CLIENTES
-    clientes = generator.generate_clientes(1000, sample_clientes_initial)
+    clientes = generator.generate_clientes(n, sample_clientes_initial)
     schema.insert(clientes, "clientes")
 
     # Sampleo de clientes
-    sample_clientes = schema.get_clientes(1000)
+    sample_clientes = schema.get_clientes(n)
     # Aca obtenemos las funciones y salas pre-existentes para fijarnos que no se excedan las cantidades.
     sample_funciones = schema.get_funciones()
     sample_salas = schema.get_salas()
 
     # Generar datos de COMPRAS
     compras = generator.generate_compras(
-        1000, sample_funciones, sample_clientes, sample_salas
+        n, sample_funciones, sample_clientes, sample_salas
     )
     schema.insert(compras, "compras")
 
@@ -72,7 +72,7 @@ def forecast_sales():
 
 with DAG(
     "fill_data_daily",
-    start_date=pendulum.datetime(2024, 7, 2, tz="UTC"),
+    start_date=pendulum.datetime(2024, 7, 13, tz="UTC"),
     schedule_interval="@daily",
     catchup=True,
 ) as dag:

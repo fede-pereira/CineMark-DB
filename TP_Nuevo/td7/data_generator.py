@@ -17,23 +17,6 @@ class DataGenerator:
         self.fake.add_provider(internet)
         self.fake.add_provider(passport)
         self.fake.add_provider(phone_number)
-
-    def generate_people(self, n: int) -> Records:
-        people = []
-        for _ in range(n):
-            people.append(
-                {
-                    "first_name": self.fake.unique.first_name(),
-                    "last_name": self.fake.unique.last_name(),
-                    "phone_number": self.fake.unique.phone_number(),
-                    "address": self.fake.unique.address(),
-                    "country": self.fake.unique.country(),
-                    "date_of_birth": self.fake.unique.date_of_birth(),
-                    "passport_number": self.fake.unique.passport_number(),
-                    "email": self.fake.unique.ascii_email(),
-                }
-            )
-        return people
     
     def generate_peliculas(self, n: int) -> Records:
         peliculas = []
