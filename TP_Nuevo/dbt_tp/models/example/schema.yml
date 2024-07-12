@@ -1,148 +1,178 @@
-# version: 2
+version: 2
 
-# models:
-#   - name: salas
-#     description: "Table containing cinema hall information."
-#     columns:
-#       - name: id_sala
-#         description: "Primary key: Unique identifier for the hall."
-#         tests:
-#           - unique
-#           - not_null
-#       - name: id_cine
-#         description: "Primary key: Identifier for the cinema."
-#         tests:
-#           - unique
-#           - not_null
-#       - name: asientos
-#         description: "Number of seats in the hall."
+sources:
 
-#   - name: peliculas
-#     description: "Table containing movie information."
-#     columns:
-#       - name: nombre_pelicula
-#         description: "Primary key: Name of the movie."
-#         tests:
-#           - unique
-#           - not_null
-#       - name: director
-#         description: "Primary key: Director of the movie."
-#         tests:
-#           - unique
-#           - not_null
-#       - name: duracion_en_segundos
-#         description: "Duration of the movie in seconds."
-#       - name: estudio
-#         description: "Production studio of the movie."
-#       - name: presupuesto
-#         description: "Budget of the movie."
-#       - name: tiempo_de_realizacion
-#         description: "Time taken to make the movie."
-#       - name: ano_estreno
-#         description: "Release year of the movie."
-#       - name: genero_pelicula
-#         description: "Genre of the movie."
+  - name: postgres
+    database: postgres 
+    schema: public  
+    tables:
+      - name: salas
+        columns:
+        - name: id_sala
+          description: "Primary key: Unique identifier for the hall."
+          data_tests:
+            - unique
+            - not_null
+        - name: id_cine
+          description: "Primary key: Identifier for the cinema."
+          data_tests:
+            - unique
+            - not_null
+        - name: asientos
+          description: "Number of seats in the hall."
+      - name: clientes
+        columns:
+        - name: cuit
+          description: "Primary key: Unique identifier for the customer."
+          data_tests:
+            - unique
+            - not_null
+        - name: nombre
+          description: "First name of the customer."
+        - name: apellido
+          description: "Last name of the customer."
+        - name: edad
+          description: "Age of the customer."
+        - name: nacionalidad
+          description: "Nationality of the customer."
+        - name: genero
+          description: "Gender of the customer."
+      - name: compras
+        columns:
+        - name: id_compra
+          description: "Primary key: Unique identifier for the purchase."
+          data_tests:
+            - unique
+            - not_null
+        - name: nombre_pelicula
+          description: "Foreign key: Name of the movie."
+          data_tests:
+            - not_null
+        - name: director
+          description: "Foreign key: Director of the movie."
+          data_tests:
+            - not_null
+        - name: id_sala
+          description: "Foreign key: Identifier for the hall."
+          data_tests:
+            - not_null
+        - name: id_cine
+          description: "Foreign key: Identifier for the cinema."
+          data_tests:
+            - not_null
+        - name: ts
+          description: "Foreign key: Timestamp of the screening."
+          data_tests:
+            - not_null
+        - name: cuit
+          description: "Foreign key: Identifier for the customer."
+          data_tests:
+            - not_null
+        - name: cantidad
+          description: "Quantity of tickets purchased."
+          data_tests:
+            - not_null
+        - name: precio
+          description: "Price of the purchase."
+      - name: funciones
+        columns:
+        - name: nombre_pelicula
+          description: "Primary key and Foreign key: Name of the movie."
+          data_tests:
+            - not_null
+        - name: director
+          description: "Primary key and Foreign key: Director of the movie."
+          data_tests:
+            - not_null
+        - name: id_sala
+          description: "Primary key and Foreign key: Identifier for the hall."
+          data_tests:
+            - not_null
+        - name: id_cine
+          description: "Primary key and Foreign key: Identifier for the cinema."
+          data_tests:
+            - not_null
+        - name: ts
+          description: "Primary key: Timestamp of the screening."
+          data_tests:
+            - not_null
+        - name: precio
+          description: "Price of the screening."
+      - name: actores
+        columns:
+        - name: id_actor
+          description: "Primary key: Unique identifier for the actor."
+          data_tests:
+            - unique
+            - not_null
+        - name: nombre
+          description: "First name of the actor."
+          data_tests:
+            - not_null
+        - name: apellido
+          description: "Last name of the actor."
+        - name: edad
+          description: "Age of the actor."
+        - name: genero
+      - name: peliculas
+        columns:
+        - name: nombre_pelicula
+          description: "Primary key: Name of the movie."
+          data_tests:
+            - unique
+            - not_null
+        - name: director
+          description: "Primary key: Director of the movie."
+          data_tests:
+            - unique
+            - not_null
+        - name: duracion_en_segundos
+          description: "Duration of the movie in seconds."
+        - name: estudio
+          description: "Production studio of the movie."
+        - name: presupuesto
+          description: "Budget of the movie."
+        - name: tiempo_de_realizacion
+          description: "Time taken to make the movie."
+        - name: ano_estreno
+          description: "Release year of the movie."
+        - name: genero_pelicula
+          description: "Genre of the movie."
+      
+      
+models:
+  - name: clientes_recurrentes
+    description: "Vista de los clientes categorizados por su cantidad de compras"
+    columns:
+      - name: cuit
+        description: "Clave primaria e identificador de cada cliente"
+        data_tests:
+          - unique
+          - not_null
+      - name: categoria
+        description: "Categoria del cliente"
+        data_tests:
+          - not_null
+          - accepted_values:
+                  values: ['Cinemark Fan', 'Aficionado al cine', 'Primera cita']
+      - name: plata_cliente
+        description: "Dinero que ha gastado el cliente"
+        data_tests:
+          - not_null
+          
+          
 
-#   - name: clientes
-#     description: "Table containing customer information."
-#     columns:
-#       - name: cuit
-#         description: "Primary key: Unique identifier for the customer."
-#         tests:
-#           - unique
-#           - not_null
-#       - name: nombre
-#         description: "First name of the customer."
-#       - name: apellido
-#         description: "Last name of the customer."
-#       - name: edad
-#         description: "Age of the customer."
-#       - name: nacionalidad
-#         description: "Nationality of the customer."
-#       - name: genero
-#         description: "Gender of the customer."
+  - name: generos_revenue
+    description: "Vista de la cantidad de plata recaudada segun el genero de la pelicula"
+    columns:
+      - name: genero_pelicula
+        description: "Genero de la pelicula"
+        data_tests:
+          - unique
+          - not_null
+      - name: total_revenue
+        description: "Recaudacion del genero"
+        data_tests:
+          - not_null
 
-#   - name: actores
-#     description: "Table containing actor information."
-#     columns:
-#       - name: id_actor
-#         description: "Primary key: Unique identifier for the actor."
-#         tests:
-#           - unique
-#           - not_null
-#       - name: nombre
-#         description: "First name of the actor."
-#         tests:
-#           - not_null
-#       - name: apellido
-#         description: "Last name of the actor."
-#       - name: edad
-#         description: "Age of the actor."
-#       - name: genero
-#         description: "Gender of the actor."
-
-#   - name: funciones
-#     description: "Table containing movie screening information."
-#     columns:
-#       - name: nombre_pelicula
-#         description: "Primary key and Foreign key: Name of the movie."
-#         tests:
-#           - not_null
-#       - name: director
-#         description: "Primary key and Foreign key: Director of the movie."
-#         tests:
-#           - not_null
-#       - name: id_sala
-#         description: "Primary key and Foreign key: Identifier for the hall."
-#         tests:
-#           - not_null
-#       - name: id_cine
-#         description: "Primary key and Foreign key: Identifier for the cinema."
-#         tests:
-#           - not_null
-#       - name: ts
-#         description: "Primary key: Timestamp of the screening."
-#         tests:
-#           - not_null
-#       - name: precio
-#         description: "Price of the screening."
-
-#   - name: compras
-#     description: "Table containing purchase information."
-#     columns:
-#       - name: id_compra
-#         description: "Primary key: Unique identifier for the purchase."
-#         tests:
-#           - unique
-#           - not_null
-#       - name: nombre_pelicula
-#         description: "Foreign key: Name of the movie."
-#         tests:
-#           - not_null
-#       - name: director
-#         description: "Foreign key: Director of the movie."
-#         tests:
-#           - not_null
-#       - name: id_sala
-#         description: "Foreign key: Identifier for the hall."
-#         tests:
-#           - not_null
-#       - name: id_cine
-#         description: "Foreign key: Identifier for the cinema."
-#         tests:
-#           - not_null
-#       - name: ts
-#         description: "Foreign key: Timestamp of the screening."
-#         tests:
-#           - not_null
-#       - name: cuit
-#         description: "Foreign key: Identifier for the customer."
-#         tests:
-#           - not_null
-#       - name: cantidad
-#         description: "Quantity of tickets purchased."
-#         tests:
-#           - not_null
-#       - name: precio
-#         description: "Price of the purchase."
 

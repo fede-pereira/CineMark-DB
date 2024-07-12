@@ -8,11 +8,11 @@ with compras_cliente as (
         sum(c.cantidad * f.precio) as plata_cliente
     from 
         
-        compras c
+        {{source('postgres','compras')}} c
     join
-        clientes cl on c.cuit = cl.cuit
+        {{source('postgres','clientes')}} cl on c.cuit = cl.cuit
     join 
-        funciones f on f.nombre_pelicula = c.nombre_pelicula and f.director = c.director and f.id_sala = c.id_sala and f.id_cine = c.id_cine and c.ts=f.ts
+        {{source('postgres','funciones')}} f on f.nombre_pelicula = c.nombre_pelicula and f.director = c.director and f.id_sala = c.id_sala and f.id_cine = c.id_cine and c.ts=f.ts
     group by 
         cl.cuit
 )
@@ -21,7 +21,7 @@ select
     case 
         when cantidad_compras_cliente > 2 then 'Cinemark Fan'
         when cantidad_compras_cliente = 2 then 'Aficionado al cine'
-        else 'Tuvo una cita'
+        else 'Primera cita'
     end as categoria,
     plata_cliente
 from compras_cliente

@@ -7,11 +7,11 @@ with compras_genero as (
         p.genero_pelicula as genero_pelicula,
         sum(c.cantidad * f.precio) as total_revenue
     from 
-        compras c
+        {{source('postgres','compras')}} c
     join 
-        funciones f on f.nombre_pelicula = c.nombre_pelicula and f.director = c.director and f.id_sala = c.id_sala and f.id_cine = c.id_cine and c.ts=f.ts
+        {{source('postgres','funciones')}} f on f.nombre_pelicula = c.nombre_pelicula and f.director = c.director and f.id_sala = c.id_sala and f.id_cine = c.id_cine and c.ts=f.ts
     join 
-        peliculas p on c.nombre_pelicula = p.nombre_pelicula
+        {{source('postgres','peliculas')}} p on c.nombre_pelicula = p.nombre_pelicula
     group by 
         p.genero_pelicula, f.precio
 )
