@@ -12,7 +12,7 @@ with compras_genero as (
         {{source('postgres','funciones')}} f on f.nombre_pelicula = c.nombre_pelicula and f.director = c.director and f.id_sala = c.id_sala and f.id_cine = c.id_cine and c.ts=f.ts
     join 
         {{source('postgres','peliculas')}} p on c.nombre_pelicula = p.nombre_pelicula
-    WHERE c.ts >= CURDATE() - INTERVAL 30 DAY;
+    WHERE c.ts >= CURRENT_DATE - INTERVAL '30 days'
     group by 
         p.genero_pelicula, f.precio
 )
